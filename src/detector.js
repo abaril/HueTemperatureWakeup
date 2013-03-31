@@ -16,7 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 var winston = require("winston");
-var ping = require("ping");
 var process = require("child_process");
 var hue = require("./hue");
 
@@ -61,8 +60,9 @@ function pingDevice() {
 }
 
 function probe(addr, cb) {
-        var ls = process.spawn('/sbin/ping', ['-n', '-W 2', '-c 1', addr]);
-        ls.on('exit', function (code) {
+//        var ping = process.spawn('/sbin/ping', ['-n', '-W 2', '-c 1', addr]);
+        var ping = process.spawn('/bin/ping', ['-n', '-w 2', '-c 1', addr]);
+	ping.on('exit', function (code) {
             var result = (code === 0 ? true : false);
             cb && cb(result);
         });
