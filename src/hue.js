@@ -28,14 +28,27 @@ var displayResult = function(result) {
     winston.info(JSON.stringify(result, null, 2));
 };
 
-var turnLightOff = function(result) {
+function turnLightOff(light, result) {
+	if (typeof light === "undefined") {
+		light = light_id;
+	}
+
 	state = lightState.create();
-	api.setLightState(light_id, state.off()).done();
+	api.setLightState(light, state.off()).done();
 }
 
-var turnLightOn = function(rgb) {
-	state = lightState.create().rgb(rgb.red, rgb.green, rgb.blue).on().brightness(100).transition(30);
-	api.setLightState(light_id, state).done();
+function turnLightOn(light, rgb) {
+	if (typeof light === "undefined") {
+		light = light_id;
+	}
+
+	if (typeof rgb !== "undefined") {
+		state = lightState.create().rgb(rgb.red, rgb.green, rgb.blue).on().brightness(100).transition(30);
+	}
+	else {
+		state = lightState.create().on().brightness(100).transition(2);
+	}
+	api.setLightState(light, state).done();
 }
 
 function start(settings) {
@@ -120,3 +133,5 @@ function createForecastRequestURL(settings) {
 
 exports.start = start;
 exports.triggerAlarm = triggerAlarm;
+exports.turnLightOn = turnLightOn;
+exports.turnLightOff = turnLightOff;

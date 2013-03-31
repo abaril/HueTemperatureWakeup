@@ -18,16 +18,20 @@
 var winston = require("winston");
 var timer = require("./timer");
 var hue = require("./hue");
+var detector = require("./detector");
 
 var settings = {
     "gateway_address": "",
     "gateway_user": "",
     "light_id": 2,
+    "auto_on_light_id": 1,
     "alarm_time_hour": 07,
     "alarm_time_minute": 40,
     "longitude": "-79.38318",
     "latitude": "43.65323",
-    "darksky_api_key": ""
+    "darksky_api_key": "",
+    "device_ip_address": "",
+    "threshold_for_auto_on_secs": 900.0
 };
 
 winston.setLevels(winston.config.syslog.levels);
@@ -46,4 +50,4 @@ process.on('uncaughtException', function(err) {
 
 hue.start(settings);
 timer.start(settings, function() { hue.triggerAlarm(); });
-
+detector.start(settings);
