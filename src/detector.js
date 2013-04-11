@@ -23,14 +23,16 @@ var deviceIPAddr;
 var sampleRate = 10000.0;
 var thresholdForAutoOn;
 var downTime = 0;
-var light_id;
+var on_light_ids = [];
+var off_light_ids = [];
 var currentlyOn = false;
 
 function start(settings) {
 	deviceIPAddr = settings.device_ip_address;
 	thresholdForAutoOn = settings.threshold_for_auto_on_secs / (sampleRate / 1000);
 	console.log("threshold: " + thresholdForAutoOn);
-	light_id = settings.auto_on_light_id;
+	on_light_ids = settings.auto_on_light_ids;
+	off_light_ids = settings.auto_off_light_ids;
 	
 	pingDevice();
 }
@@ -41,16 +43,20 @@ function pingDevice() {
 			console.log("on");
 			if (downTime > thresholdForAutoOn) {
 				winston.info("Back on after: " + downTime);
-				hue.turnLightOn(light_id);
+				for (i = 0; i < on_light_ids.length; ++i) {
+					hue.turnLightOn(on_light_ids[i]);
+				}
 				currentlyOn = true;
 			}
 			downTime = 0;
 		}
 		else {
-					console.log("off");
+			console.log("off");
 			if (currentlyOn && (downTime > thresholdForAutoOn)) {
 				winston.info("Auto off");
-				hue.turnLightOff(light_id);
+				for (i = 0; i < off_light_ids.length; ++i) {
+					hue.turnLightOff(off_light_ids[i]);
+				}				
 				currentlyOn = false;
 			}
 			downTime += 1;
@@ -62,7 +68,7 @@ function pingDevice() {
 function probe(addr, cb) {
 //        var ping = process.spawn('/sbin/ping', ['-n', '-W 2', '-c 1', addr]);
         var ping = process.spawn('/bin/ping', ['-n', '-w 2', '-c 1', addr]);
-	ping.on('exit', function (code) {
+		ping.on('exit', function (code) {
             var result = (code === 0 ? true : false);
             cb && cb(result);
         });
