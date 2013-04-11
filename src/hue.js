@@ -79,7 +79,7 @@ function triggerAlarm() {
 					
 			forecast = JSON.parse(data);
 			rgb = colorForForecast(forecast);
-			turnLightOn(rgb);		
+			turnLightOn(light_id, rgb);		
 		});
 	}).on('error', function(err) {
 		winston.error("Error: " + err.message);

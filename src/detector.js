@@ -38,7 +38,6 @@ function start(settings) {
 function pingDevice() {
 	probe(deviceIPAddr, function(result) {
 		if (result) {
-			console.log("on");
 			if (downTime > thresholdForAutoOn) {
 				winston.info("Back on after: " + downTime);
 				hue.turnLightOn(light_id);
@@ -47,7 +46,6 @@ function pingDevice() {
 			downTime = 0;
 		}
 		else {
-					console.log("off");
 			if (currentlyOn && (downTime > thresholdForAutoOn)) {
 				winston.info("Auto off");
 				hue.turnLightOff(light_id);

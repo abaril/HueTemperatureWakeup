@@ -44,7 +44,7 @@ function determineNextAlarmDate()
 {
 	var alarmTime = new Date();
 	alarmTime.setHours(alarmHour, alarmMinute, 0, 0);
-	winston.info("Next alarm = " + alarmTime.toTimeString());
+	winston.info("Next alarm = " + alarmTime.toTimeString() + " in " + secondsLeft(alarmTime));
 
 	if (secondsLeft(alarmTime) <= 0) {
 		alarmTime.setDate(alarmTime.getDate() + 1);
