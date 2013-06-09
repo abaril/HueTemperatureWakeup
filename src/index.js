@@ -19,6 +19,7 @@ var winston = require("winston");
 var timer = require("./timer");
 var hue = require("./hue");
 var detector = require("./detector");
+var lightController = require("./lightController");
 
 var settings = {
     "gateway_address": "192.168.1.105",
@@ -53,3 +54,6 @@ process.on('uncaughtException', function(err) {
 hue.start(settings);
 timer.start(settings, function() { hue.triggerAlarm(); });
 detector.start(settings);
+lightController.start(settings);
+
+detector.notify(lightController.setLights);

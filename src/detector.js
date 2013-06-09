@@ -17,56 +17,55 @@
 
 var winston = require("winston");
 var process = require("child_process");
-var hue = require("./hue");
 
 var deviceIPAddr;
 var sampleRate = 10000.0;
 var thresholdForAutoOn;
 var downTime = 0;
+var currentlyAtHome = false;
+var notificationList = [];
+
+var on_exclusion_time = [];
 var on_light_ids = [];
 var off_light_ids = [];
-var currentlyOn = false;
-var on_exclusion_time = [];
 
 function start(settings) {
 	deviceIPAddr = settings.device_ip_address;
 	thresholdForAutoOn = settings.threshold_for_auto_on_secs / (sampleRate / 1000);
 	console.log("threshold: " + thresholdForAutoOn);
-	on_light_ids = settings.auto_on_light_ids;
-	off_light_ids = settings.auto_off_light_ids;
-	on_exclusion_time = settings.auto_on_exclude_time_range;
 	pingDevice();
 }
 
-function outsideExclusionTime() {
-	var currentTime = new Date();
-	if (on_exclusion_time.length >= 2) {
-		return (currentTime.getHours() <= on_exclusion_time[0]) || (currentTime.getHours() >= on_exclusion_time[1]);
+function notify(callback) {
+	notificationList.push(callback);
+}
+
+function isAtHome() {
+	return currentlyAtHome;
+}
+
+function setIsAtHome(value) {
+	if (currentlyAtHome !== value) {
+		currentlyAtHome = value;
+		for (var i = 0; i < notificationList.length; ++i) {
+			notificationList[i](currentlyAtHome);
+		}
 	}
-	return true;
 }
 
 function pingDevice() {
 	probe(deviceIPAddr, function(result) {
 		if (result) {
 			if (downTime > thresholdForAutoOn) {
-				winston.info("Back on after: " + downTime);
-				if (outsideExclusionTime()) {
-					for (i = 0; i < on_light_ids.length; ++i) {
-						hue.turnLightOn(on_light_ids[i]);
-					}
-				}
-				currentlyOn = true;
+				winston.info("Back home after: " + downTime);
+				setIsAtHome(true);
 			}
 			downTime = 0;
 		}
 		else {
-			if (currentlyOn && (downTime > thresholdForAutoOn)) {
-				winston.info("Auto off");
-				for (i = 0; i < off_light_ids.length; ++i) {
-					hue.turnLightOff(off_light_ids[i]);
-				}				
-				currentlyOn = false;
+			if (downTime > thresholdForAutoOn) {
+				winston.info("Left home");
+				setIsAtHome(false);
 			}
 			downTime += 1;
 		}
@@ -75,7 +74,6 @@ function pingDevice() {
 }
 
 function probe(addr, cb) {
-//        var ping = process.spawn('/sbin/ping', ['-n', '-W 2', '-c 1', addr]);
         var ping = process.spawn('/bin/ping', ['-n', '-w 2', '-c 1', addr]);
 		ping.on('exit', function (code) {
             var result = (code === 0 ? true : false);
@@ -84,3 +82,5 @@ function probe(addr, cb) {
 }
 
 exports.start = start;
+exports.notify = notify;
+exports.isAtHome = isAtHome;
