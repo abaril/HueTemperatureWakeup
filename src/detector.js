@@ -46,6 +46,8 @@ function isAtHome() {
 
 function setIsAtHome(value) {
 	if (currentlyAtHome !== value) {
+		winston.info("isAtHome changed: " + value);
+
 		currentlyAtHome = value;
 		for (var i = 0; i < notificationList.length; ++i) {
 			notificationList[i](currentlyAtHome);
@@ -57,14 +59,12 @@ function pingDevice() {
 	probe(deviceIPAddr, function(result) {
 		if (result) {
 			if (downTime > thresholdForAutoOn) {
-				winston.info("Back home after: " + downTime);
 				setIsAtHome(true);
 			}
 			downTime = 0;
 		}
 		else {
 			if (downTime > thresholdForAutoOn) {
-				winston.info("Left home");
 				setIsAtHome(false);
 			}
 			downTime += 1;

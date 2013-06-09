@@ -19,6 +19,7 @@ var hue = require("node-hue-api").hue;
 var lightState = require("node-hue-api").lightState;
 var winston = require("winston");
 var https = require("https");
+var detector = require("./detector");
 
 var api;
 var light_id;
@@ -67,26 +68,31 @@ function start(settings) {
 
 function triggerAlarm() {
 	
-	https.get(forecastRequestURL, function(res) {
-		var data = "";
-		res.on('data', function (chunk) {
-			data = data + chunk;
-		});
-		res.on('end', function() {
-			winston.debug("===");
-			winston.debug(data);
-			winston.debug("===");
-					
-			forecast = JSON.parse(data);
-			rgb = colorForForecast(forecast);
-			turnLightOn(light_id, rgb);		
-		});
-	}).on('error', function(err) {
-		winston.error("Error: " + err.message);
-		
-		state = lightState.create();
-	    api.setLightState(light_id, state.alert(true)).done();
-	});	
+	if (detector.isAtHome()) {
+        https.get(forecastRequestURL, function(res) {
+            var data = "";
+            res.on('data', function (chunk) {
+                data = data + chunk;
+            });
+            res.on('end', function() {
+                winston.debug("===");
+                winston.debug(data);
+                winston.debug("===");
+                    
+                forecast = JSON.parse(data);
+                rgb = colorForForecast(forecast);
+                turnLightOn(light_id, rgb);		
+            });
+        }).on('error', function(err) {
+            winston.error("Error: " + err.message);
+        
+            state = lightState.create();
+            api.setLightState(light_id, state.alert(true)).done();
+        });	
+    }
+    else {
+        winston.log("Ignoring alarm as not home");
+    }
 }
 
 function colorForForecast(forecast) {
@@ -96,7 +102,12 @@ function colorForForecast(forecast) {
 		"blue": 0.0
 	};
 	
-	maxRain = forecast.daily.data[0].precipIntensity;
+	var precipitation = false;
+	if (typeof forecast.daily.data[0].precipType !== "undefined") {
+	    precipitation = true;
+	}
+	
+	maxRain = forecast.daily.data[0].precipIntensityMax;
 	if (typeof forecast.daily.data[0].precipProbability !== "undefined") {
 		maxRain = forecast.daily.data[0].precipProbability;
 	}
@@ -106,7 +117,7 @@ function colorForForecast(forecast) {
 	winston.info("Max temp = " + maxTemp);
 	winston.info("Probability of precipitation = " + maxRain);
 	
-	if (maxRain > 0.05) {
+	if (precipitation) {
 		rgb.blue = 255.0 * maxRain;
 	}
 	else {
