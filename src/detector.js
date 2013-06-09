@@ -26,6 +26,7 @@ var downTime = 0;
 var on_light_ids = [];
 var off_light_ids = [];
 var currentlyOn = false;
+var on_exclusion_time = [];
 
 function start(settings) {
 	deviceIPAddr = settings.device_ip_address;
@@ -33,8 +34,16 @@ function start(settings) {
 	console.log("threshold: " + thresholdForAutoOn);
 	on_light_ids = settings.auto_on_light_ids;
 	off_light_ids = settings.auto_off_light_ids;
-	
+	on_exclusion_time = settings.auto_on_exclude_time_range;
 	pingDevice();
+}
+
+function outsideExclusionTime() {
+	var currentTime = new Date();
+	if (on_exclusion_time.length >= 2) {
+		return (currentTime.getHours() <= on_exclusion_time[0]) || (currentTime.getHours() >= on_exclusion_time[1]);
+	}
+	return true;
 }
 
 function pingDevice() {
@@ -42,8 +51,10 @@ function pingDevice() {
 		if (result) {
 			if (downTime > thresholdForAutoOn) {
 				winston.info("Back on after: " + downTime);
-				for (i = 0; i < on_light_ids.length; ++i) {
-					hue.turnLightOn(on_light_ids[i]);
+				if (outsideExclusionTime()) {
+					for (i = 0; i < on_light_ids.length; ++i) {
+						hue.turnLightOn(on_light_ids[i]);
+					}
 				}
 				currentlyOn = true;
 			}

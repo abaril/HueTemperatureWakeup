@@ -21,18 +21,19 @@ var hue = require("./hue");
 var detector = require("./detector");
 
 var settings = {
-    "gateway_address": "",
+    "gateway_address": "192.168.1.105",
     "gateway_user": "",
     "light_id": 2,
     "auto_on_light_ids": [1],
     "auto_off_light_ids": [1, 2, 3],
+    "auto_on_exclude_time_range": [08, 19],
     "alarm_time_hour": 07,
     "alarm_time_minute": 40,
     "longitude": "-79.38318",
     "latitude": "43.65323",
     "darksky_api_key": "",
-    "device_ip_address": "",
-    "threshold_for_auto_on_secs": 900.0
+    "device_ip_address": "192.168.1.104",
+    "threshold_for_auto_on_secs": 1200.0
 };
 
 winston.setLevels(winston.config.syslog.levels);
