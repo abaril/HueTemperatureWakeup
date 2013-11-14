@@ -22,18 +22,18 @@ var detector = require("./detector");
 var lightController = require("./lightController");
 
 var settings = {
-    "gateway_address": "192.168.1.105",
-    "gateway_user": "",
+    "gateway_address": "192.168.xxx.yyy",
+    "gateway_user": "user_id",
     "light_id": 2,
     "auto_on_light_ids": [1],
-    "auto_off_light_ids": [1, 2, 3],
-    "auto_on_exclude_time_range": [08, 19],
-    "alarm_time_hour": 07,
-    "alarm_time_minute": 40,
+    "auto_off_light_ids": [1, 2, 3, 4],
+    "auto_on_exclude_time_range": [{"Hour": 07, "Minute": 00}, {"Hour": 19, "Minute": 00}],
+    "alarm_time_hour": 19,
+    "alarm_time_minute": 57,
     "longitude": "-79.38318",
     "latitude": "43.65323",
-    "darksky_api_key": "",
-    "device_ip_address": "192.168.1.104",
+    "darksky_api_key": "-",
+    "device_ip_address": "192.168.xxx.yyy",
     "threshold_for_auto_on_secs": 1200.0
 };
 
@@ -51,9 +51,9 @@ process.on('uncaughtException', function(err) {
   winston.log(err);
 });
 
-hue.start(settings);
 timer.start(settings, function() { hue.triggerAlarm(); });
 detector.start(settings);
 lightController.start(settings);
+hue.start(settings, lightController);
 
 detector.notify(lightController.setLights);

@@ -22,7 +22,7 @@ var deviceIPAddr;
 var sampleRate = 10000.0;
 var thresholdForAutoOn;
 var downTime = 0;
-var currentlyAtHome = false;
+var currentlyAtHome = true;
 var notificationList = [];
 
 var on_exclusion_time = [];

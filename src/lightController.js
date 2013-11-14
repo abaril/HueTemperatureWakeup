@@ -27,10 +27,37 @@ function start(settings) {
 	on_exclusion_time = settings.auto_on_exclude_time_range;
 }
 
+function setSunriseAndSunset(sunrise, sunset)
+{
+   on_exclusion_time = [
+      {
+         "Hour": sunrise.getHours(),
+         "Minute": sunrise.getMinutes()
+      },
+      {
+         "Hour": sunset.getHours(),
+         "Minute": sunset.getMinutes()
+      }
+   ];
+}
+
 function outsideExclusionTime() {
 	var currentTime = new Date();
 	if (on_exclusion_time.length >= 2) {
-		return (currentTime.getHours() <= on_exclusion_time[0]) || (currentTime.getHours() >= on_exclusion_time[1]);
+      var currentHour = currentTime.getHours();
+      var currentMinute = currentTime.getMinutes();
+
+      if ((currentHour < on_exclusion_time[0].Hour) || 
+          ((currentHour == on_exclusion_time[0].Hour) && (currentMinute < on_exclusion_time[0].Minute))) {
+         return true;
+      }
+
+      if ((currentHour > on_exclusion_time[1].Hour) || 
+          ((currentHour == on_exclusion_time[1].Hour) && (currentMinute > on_exclusion_time[1].Minute))) {
+         return true;
+      }
+
+      return false;
 	}
 	return true;
 }
@@ -52,3 +79,4 @@ function setLights(value) {
 
 exports.start = start;
 exports.setLights = setLights;
+exports.setSunriseAndSunset = setSunriseAndSunset;

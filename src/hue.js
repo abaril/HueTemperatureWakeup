@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var hue = require("node-hue-api").hue;
+var hue = require("node-hue-api");
 var lightState = require("node-hue-api").lightState;
 var winston = require("winston");
 var https = require("https");
@@ -24,6 +24,7 @@ var detector = require("./detector");
 var api;
 var light_id;
 var forecastRequestURL;
+var lightController;
 
 var displayResult = function(result) {
     winston.info(JSON.stringify(result, null, 2));
@@ -52,18 +53,17 @@ function turnLightOn(light, rgb) {
 	api.setLightState(light, state).done();
 }
 
-function start(settings) {
+function start(settings, controller) {
 
 	forecastRequestURL = createForecastRequestURL(settings);
+
+   lightController = controller; 
 
 	light_id = settings.light_id;
 	api = new hue.HueApi(settings.gateway_address, settings.gateway_user);
 	api.connect().then(displayResult).done();   
    
-	state = lightState.create();
-    api.setLightState(light_id, state.alert()).done();
-    
-    setTimeout(turnLightOff, 10000);
+   setTimeout(turnLightOff, 10000);
 }
 
 function triggerAlarm() {
@@ -80,6 +80,7 @@ function triggerAlarm() {
                 winston.debug("===");
                     
                 forecast = JSON.parse(data);
+                determineSunriseSunset(forecast);
                 rgb = colorForForecast(forecast);
                 turnLightOn(light_id, rgb);		
             });
@@ -93,6 +94,22 @@ function triggerAlarm() {
     else {
         winston.log("Ignoring alarm as not home");
     }
+}
+
+function determineSunriseSunset(forecast) {
+
+   if ((typeof forecast.daily.data[0].sunriseTime === "undefined") ||
+       (typeof forecast.daily.data[0].sunsetTime === "undefined")) {
+      return;
+   }
+   
+   var sunriseTime = new Date(forecast.daily.data[0].sunriseTime * 1000);
+   var sunsetTime = new Date(forecast.daily.data[0].sunsetTime * 1000);
+
+   winston.info("Sunrise = " + sunriseTime.getHours() + ":" + sunriseTime.getMinutes());
+   winston.info("Sunset = " + sunsetTime.getHours() + ":" + sunsetTime.getMinutes());
+
+   lightController.setSunriseAndSunset(sunriseTime, sunsetTime);
 }
 
 function colorForForecast(forecast) {
