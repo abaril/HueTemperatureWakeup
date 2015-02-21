@@ -21,6 +21,9 @@ var hue = require("./hue");
 var detector = require("./detector");
 var lightController = require("./lightController");
 
+var express    = require('express');
+var app        = express();
+
 var settings = {
     "gateway_address": "192.168.xxx.yyy",
     "gateway_user": "user_id",
@@ -36,6 +39,10 @@ var settings = {
     "device_ip_address": "192.168.xxx.yyy",
     "threshold_for_auto_on_secs": 1200.0
 };
+
+if (typeof process.env.SETTINGS != 'undefined') {
+    settings =  JSON.parse(process.env.SETTINGS);
+}
 
 winston.setLevels(winston.config.syslog.levels);
 winston.add(winston.transports.File, {
@@ -57,3 +64,12 @@ lightController.start(settings);
 hue.start(settings, lightController);
 
 detector.notify(lightController.setLights);
+
+var port = process.env.PORT || 8080;
+var router = express.Router();
+router.get('/status', function(req, res) {
+    res.json(settings);   
+});
+app.use('/api', router);
+
+app.listen(port);

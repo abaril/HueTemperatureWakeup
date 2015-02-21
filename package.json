@@ -1,0 +1,30 @@
+{
+  "name": "HueTemperatureWakeup",
+  "version": "1.0.0",
+  "description": "Controller for Hue lights",
+  "main": "index.js",
+  "dependencies": {
+    "darksky": "^0.1.2",
+    "express": "^4.11.2",
+    "footprint": "^0.1.0",
+    "node-hue-api": "^0.1.2",
+    "node-ping": "^0.1.0",
+    "ping": "^0.1.1",
+    "pinger": "^0.0.2",
+    "winston": "^0.6.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abaril/HueTemperatureWakeup.git"
+  },
+  "author": "Allan Baril",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/abaril/HueTemperatureWakeup/issues"
+  },
+  "homepage": "https://github.com/abaril/HueTemperatureWakeup"
+}
