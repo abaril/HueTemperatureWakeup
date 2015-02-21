@@ -6,7 +6,7 @@
   "dependencies": {
     "darksky": "^0.1.2",
     "express": "^4.11.2",
-    "node-hue-api": "^0.1.2",
+    "node-hue-api": "^1.0.5",
     "winston": "^0.6.2"
   },
   "devDependencies": {},
