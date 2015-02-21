@@ -57,13 +57,13 @@ function start(settings, controller) {
 
 	forecastRequestURL = createForecastRequestURL(settings);
 
-   lightController = controller; 
+    lightController = controller; 
 
 	light_id = settings.light_id;
-	api = new hue.HueApi(settings.gateway_address, settings.gateway_user);
-	api.connect().then(displayResult).done();   
+	// api = new hue.HueApi(settings.gateway_address, settings.gateway_user);
+	// api.connect().then(displayResult).done();   
    
-   setTimeout(turnLightOff, 10000);
+ //    setTimeout(turnLightOff, 10000);
 }
 
 function triggerAlarm() {
