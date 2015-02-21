@@ -58,10 +58,10 @@ process.on('uncaughtException', function(err) {
   winston.log(err);
 });
 
-// timer.start(settings, function() { hue.triggerAlarm(); });
+timer.start(settings, function() { hue.triggerAlarm(); });
 // detector.start(settings);
-// lightController.start(settings);
-// hue.start(settings, lightController);
+lightController.start(settings);
+//hue.start(settings, lightController);
 
 // detector.notify(lightController.setLights);
 
