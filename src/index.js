@@ -30,7 +30,7 @@ var settings = {
     "light_id": 2,
     "auto_on_light_ids": [1],
     "auto_off_light_ids": [1, 2, 3, 4],
-    "auto_on_exclude_time_range": [{"Hour": 07, "Minute": 00}, {"Hour": 19, "Minute": 00}],
+    "auto_on_exclude_time_range": [{"Hour": 7, "Minute": 0}, {"Hour": 19, "Minute": 0}],
     "alarm_time_hour": 19,
     "alarm_time_minute": 57,
     "longitude": "-79.38318",
@@ -45,11 +45,11 @@ if (typeof process.env.SETTINGS != 'undefined') {
 }
 
 winston.setLevels(winston.config.syslog.levels);
-winston.add(winston.transports.File, {
-        "filename": "log/server.log",
-        "handleExceptions": true,
-        "level": "info"
-});
+// winston.add(winston.transports.File, {
+//         "filename": "log/server.log",
+//         "handleExceptions": true,
+//         "level": "info"
+// });
 
 winston.info("Settings = " + JSON.stringify(settings));
 
