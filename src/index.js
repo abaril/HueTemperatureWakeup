@@ -61,7 +61,7 @@ process.on('uncaughtException', function(err) {
 timer.start(settings, function() { hue.triggerAlarm(); });
 // detector.start(settings);
 lightController.start(settings);
-//hue.start(settings, lightController);
+hue.start(settings, lightController);
 
 // detector.notify(lightController.setLights);
 
