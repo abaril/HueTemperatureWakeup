@@ -59,11 +59,11 @@ process.on('uncaughtException', function(err) {
 });
 
 timer.start(settings, function() { hue.triggerAlarm(); });
-// detector.start(settings);
+detector.start(settings);
 lightController.start(settings);
 hue.start(settings, lightController);
 
-// detector.notify(lightController.setLights);
+detector.notify(lightController.setLights);
 
 var port = process.env.PORT || 8080;
 var router = express.Router();
