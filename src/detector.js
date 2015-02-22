@@ -31,6 +31,7 @@ var off_light_ids = [];
 
 function start(settings) {
 	winston.info("Start detector");
+
 	deviceIPAddr = settings.device_ip_address;
 	thresholdForAutoOn = settings.threshold_for_auto_on_secs / (sampleRate / 1000);
 	winston.info("threshold: " + thresholdForAutoOn);
@@ -57,7 +58,7 @@ function setIsAtHome(value) {
 }
 
 function pingDevice() {
-	winston.info("Pinging ...");
+	//winston.debug("Pinging ...");
 	probe(deviceIPAddr, function(result) {
 		if (result) {
 			if (downTime > thresholdForAutoOn) {
