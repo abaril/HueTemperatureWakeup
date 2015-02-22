@@ -30,6 +30,7 @@ var on_light_ids = [];
 var off_light_ids = [];
 
 function start(settings) {
+	winston.info("Start detector");
 	deviceIPAddr = settings.device_ip_address;
 	thresholdForAutoOn = settings.threshold_for_auto_on_secs / (sampleRate / 1000);
 	winston.info("threshold: " + thresholdForAutoOn);

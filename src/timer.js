@@ -61,7 +61,7 @@ function secondsLeft(alarmTime) {
 	}
 
 	var now = new Date();
-	//winston.debug("Time left " + (alarmTime.getTime() - now.getTime()) / 1000);
+	winston.debug("Time left " + (alarmTime.getTime() - now.getTime()) / 1000);
 	return (alarmTime.getTime() - now.getTime()) / 1000;
 }
 
