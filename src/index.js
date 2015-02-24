@@ -33,43 +33,75 @@ var settings = {
     "auto_on_exclude_time_range": [{"Hour": 7, "Minute": 0}, {"Hour": 19, "Minute": 0}],
     "alarm_time_hour": 19,
     "alarm_time_minute": 57,
+    "timezone_adjust_hours": 5,
+    "timezone_adjust_minutes": 0,
     "longitude": "-79.38318",
     "latitude": "43.65323",
     "darksky_api_key": "-",
+    "log_to_file": false,
     "device_ip_address": "192.168.xxx.yyy",
     "threshold_for_auto_on_secs": 1200.0
 };
 
-if (typeof process.env.SETTINGS != 'undefined') {
-    settings =  JSON.parse(process.env.SETTINGS);
+function main() {
+    if (typeof process.env.SETTINGS != 'undefined') {
+        settings =  JSON.parse(process.env.SETTINGS);
+    }
+
+    adjustSettingsBasedOnTimezone(settings);
+
+    winston.setLevels(winston.config.syslog.levels);
+    if (settings.log_to_file) {
+        winston.add(winston.transports.File, {
+                "filename": "log/server.log",
+                "handleExceptions": true,
+                "level": "info"
+        });
+    }
+
+    winston.info("Settings = " + JSON.stringify(settings));
+
+    process.on('uncaughtException', function(err) {
+      console.log(err);
+      winston.log(err);
+    });
+
+    timer.start(settings, function() { hue.triggerAlarm(); });
+    detector.start(settings);
+    lightController.start(settings);
+    hue.start(settings, lightController);
+
+    detector.notify(lightController.setLights);
+
+    var port = process.env.PORT || 8080;
+    var router = express.Router();
+    router.get('/status', function(req, res) {
+        res.json(settings);   
+    });
+    app.use('/api', router);
+
+    app.listen(port);
 }
 
-winston.setLevels(winston.config.syslog.levels);
-// winston.add(winston.transports.File, {
-//         "filename": "log/server.log",
-//         "handleExceptions": true,
-//         "level": "info"
-// });
+function adjustSettingsBasedOnTimezone(settings) {
+    if (typeof settings.timezone_adjust_hours === 'undefined') {
+        settings.timezone_adjust_hours = 0;
+    }
+    if (typeof settings.timezone_adjust_minutes === 'undefined') {
+        settings.timezone_adjust_minutes = 0;
+    }
+    if (typeof settings.auto_on_exclude_time_range !== 'undefined') {
+        settings.auto_on_exclude_time_range[0].Hour += settings.timezone_adjust_hours;
+        settings.auto_on_exclude_time_range[1].Hour += settings.timezone_adjust_hours;
+        settings.auto_on_exclude_time_range[0].Minute += settings.timezone_adjust_minutes;
+        settings.auto_on_exclude_time_range[1].Minute += settings.timezone_adjust_minutes;
+    }
+    if (typeof settings.alarm_time_hour !== 'undefined') {
+        settings.alarm_time_hour += settings.timezone_adjust_hours;
+    }
+    if (typeof settings.alarm_time_minute !== 'undefined') {
+        settings.alarm_time_minute += settings.timezone_adjust_minutes;
+    }
+}
 
-winston.info("Settings = " + JSON.stringify(settings));
-
-process.on('uncaughtException', function(err) {
-  console.log(err);
-  winston.log(err);
-});
-
-timer.start(settings, function() { hue.triggerAlarm(); });
-detector.start(settings);
-lightController.start(settings);
-hue.start(settings, lightController);
-
-detector.notify(lightController.setLights);
-
-var port = process.env.PORT || 8080;
-var router = express.Router();
-router.get('/status', function(req, res) {
-    res.json(settings);   
-});
-app.use('/api', router);
-
-app.listen(port);
+main();

@@ -20,23 +20,27 @@ var hue = require("./hue");
 var on_exclusion_time = [];
 var on_light_ids = [];
 var off_light_ids = [];
+var timezone_adjust_hours = 0;
+var timezone_adjust_minutes = 0;
 
 function start(settings) {
 	on_light_ids = settings.auto_on_light_ids;
 	off_light_ids = settings.auto_off_light_ids;
 	on_exclusion_time = settings.auto_on_exclude_time_range;
+  timezone_adjust_hours = settings.timezone_adjust_hours;
+  timezone_adjust_minutes = settings.timezone_adjust_minutes;
 }
 
 function setSunriseAndSunset(sunrise, sunset)
 {
    on_exclusion_time = [
       {
-         "Hour": sunrise.getHours(),
-         "Minute": sunrise.getMinutes()
+         "Hour": sunrise.getHours() + timezone_adjust_hours,
+         "Minute": sunrise.getMinutes() + timezone_adjust_minutes
       },
       {
-         "Hour": sunset.getHours(),
-         "Minute": sunset.getMinutes()
+         "Hour": sunset.getHours() + timezone_adjust_hours,
+         "Minute": sunset.getMinutes() + timezone_adjust_minutes
       }
    ];
 }
