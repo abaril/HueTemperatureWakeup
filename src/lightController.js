@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 var hue = require("./hue");
+var winston = require("winston");
 
 var on_exclusion_time = [];
 var on_light_ids = [];
@@ -69,9 +70,15 @@ function outsideExclusionTime() {
 function setLights(value) {
     if (value) {
         if (outsideExclusionTime()) {
+            winston.info("Turning lights on");
             for (i = 0; i < on_light_ids.length; ++i) {
                 hue.turnLightOn(on_light_ids[i]);
             }
+        }
+        else {
+          var currentTime = new Date();
+          winston.info("Ignoring setLights on due to exclusion time period: " + JSON.stringify(on_exclusion_time));
+          winston.info("Current time = " + currentTime.getHours() + ":" + currentTime.getMinutes();
         }
     }
     else {								

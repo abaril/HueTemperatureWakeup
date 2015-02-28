@@ -97,7 +97,9 @@ function adjustSettingsBasedOnTimezone(settings) {
         settings.auto_on_exclude_time_range[1].Minute += settings.timezone_adjust_minutes;
     }
     if (typeof settings.alarm_time_hour !== 'undefined') {
+        winston.info("Adjusting alarm hour")
         settings.alarm_time_hour += settings.timezone_adjust_hours;
+        winston.info("Now " + settings.alarm_time_hour);
     }
     if (typeof settings.alarm_time_minute !== 'undefined') {
         settings.alarm_time_minute += settings.timezone_adjust_minutes;
