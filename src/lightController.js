@@ -78,7 +78,7 @@ function setLights(value) {
         else {
           var currentTime = new Date();
           winston.info("Ignoring setLights on due to exclusion time period: " + JSON.stringify(on_exclusion_time));
-          winston.info("Current time = " + currentTime.getHours() + ":" + currentTime.getMinutes();
+          winston.info("Current time = " + currentTime.getHours() + ":" + currentTime.getMinutes());
         }
     }
     else {								
