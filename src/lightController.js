@@ -36,12 +36,12 @@ function setSunriseAndSunset(sunrise, sunset)
 {
    on_exclusion_time = [
       {
-         "Hour": sunrise.getHours() + timezone_adjust_hours,
-         "Minute": sunrise.getMinutes() + timezone_adjust_minutes
+         "Hour": sunrise.getHours(),
+         "Minute": sunrise.getMinutes()
       },
       {
-         "Hour": sunset.getHours() + timezone_adjust_hours,
-         "Minute": sunset.getMinutes() + timezone_adjust_minutes
+         "Hour": sunset.getHours(),
+         "Minute": sunset.getMinutes()
       }
    ];
 }
