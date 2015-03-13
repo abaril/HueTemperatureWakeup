@@ -17,6 +17,7 @@
 
 var hue = require("./hue");
 var winston = require("winston");
+var moment = require("moment-timezone");
 
 var on_exclusion_time = [];
 var on_light_ids = [];
@@ -28,8 +29,7 @@ function start(settings) {
 	on_light_ids = settings.auto_on_light_ids;
 	off_light_ids = settings.auto_off_light_ids;
 	on_exclusion_time = settings.auto_on_exclude_time_range;
-  timezone_adjust_hours = settings.timezone_adjust_hours;
-  timezone_adjust_minutes = settings.timezone_adjust_minutes;
+  timezone = settings.timezone;
 }
 
 function setSunriseAndSunset(sunrise, sunset)
@@ -47,21 +47,19 @@ function setSunriseAndSunset(sunrise, sunset)
 }
 
 function outsideExclusionTime() {
-	var currentTime = new Date();
+
 	if (on_exclusion_time.length >= 2) {
-      var currentHour = currentTime.getHours();
-      var currentMinute = currentTime.getMinutes();
+      var exclusionStart = moment().hour(on_exclusion_time[0].Hour).minute(on_exclusion_time[0].Minute).second(0).tz(timezone);
+      var exclusionStop = moment().hour(on_exclusion_time[1].Hour).minute(on_exclusion_time[1].Minute).second(0).tz(timezone);
+      var now = moment();
 
-      if ((currentHour < on_exclusion_time[0].Hour) || 
-          ((currentHour == on_exclusion_time[0].Hour) && (currentMinute < on_exclusion_time[0].Minute))) {
-         return true;
+      winston.info("Current time = " + now.format());
+      winston.info("Exclusion start time = " + exclusionStart.format());
+      winston.info("Exclusion stop time = " + exclusionStop.format());
+
+      if ((now < exclusionStart) || (now > exclusionStop)) {
+        return true;
       }
-
-      if ((currentHour > on_exclusion_time[1].Hour) || 
-          ((currentHour == on_exclusion_time[1].Hour) && (currentMinute > on_exclusion_time[1].Minute))) {
-         return true;
-      }
-
       return false;
 	}
 	return true;

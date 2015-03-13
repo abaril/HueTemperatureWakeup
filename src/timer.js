@@ -16,9 +16,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 var winston = require("winston");
+var moment = require("moment-timezone");
 
 var alarmHour = 07;
 var alarmMinute = 40;
+var timezone;
 var nextAlarmDate;
 var alarmFunc;
 
@@ -27,43 +29,33 @@ function start(settings, alarmFunction) {
 	alarmFunc = alarmFunction;
 	alarmHour = settings.alarm_time_hour;
 	alarmMinute = settings.alarm_time_minute;
+	timezone = settings.timezone;
 
 	nextAlarmDate = determineNextAlarmDate();
 	checkAlarm();	
 }
 
 function checkAlarm() {
-		if (secondsLeft() <= 0) {
-			alarmFunc();
-			nextAlarmDate = determineNextAlarmDate();
-		}
-		setTimeout(checkAlarm, 1000);
+	if (alarmTime < moment()) {
+		winston.info("Alarm time!");
+		alarmFunc();
+		nextAlarmDate = determineNextAlarmDate();
+	}
+
+	setTimeout(checkAlarm, 1000);
 }
 
 function determineNextAlarmDate()
 {
-	var alarmTime = new Date();
-	alarmTime.setHours(alarmHour, alarmMinute, 0, 0);
-	winston.info("Next alarm = " + alarmTime.toTimeString() + " in " + secondsLeft(alarmTime));
-
-	if (secondsLeft(alarmTime) <= 0) {
-		alarmTime.setDate(alarmTime.getDate() + 1);
-		while ((alarmTime.getDay() == 0) || (alarmTime.getDay() == 6)) {
-			alarmTime.setDate(alarmTime.getDate() + 1);
+	alarmTime = moment().hour(alarmHour).minute(alarmMinute).second(0).tz(timezone);
+	if (alarmTime < moment()) {
+		alarmTime.add(1, 'days');
+		while (alarmTime.isoWeekday() >= 6) {
+			alarmTime.add(1, 'days');
 		}
 	}
+	winston.info("Next alarm = " + alarmTime.format());
 	return alarmTime;	
 }
 
-function secondsLeft(alarmTime) {
-	if (alarmTime === undefined) {
-		alarmTime = nextAlarmDate;
-	}
-
-	var now = new Date();
-	winston.debug("Time left " + (alarmTime.getTime() - now.getTime()) / 1000);
-	return (alarmTime.getTime() - now.getTime()) / 1000;
-}
-
 exports.start = start;
-exports.secondsLeft = secondsLeft;

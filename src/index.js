@@ -31,10 +31,9 @@ var settings = {
     "auto_on_light_ids": [1],
     "auto_off_light_ids": [1, 2, 3, 4],
     "auto_on_exclude_time_range": [{"Hour": 7, "Minute": 0}, {"Hour": 19, "Minute": 0}],
-    "alarm_time_hour": 19,
-    "alarm_time_minute": 57,
-    "timezone_adjust_hours": 5,
-    "timezone_adjust_minutes": 0,
+    "alarm_time_hour": 20,
+    "alarm_time_minute": 00,
+    "timezone": "America/Toronto",
     "longitude": "-79.38318",
     "latitude": "43.65323",
     "darksky_api_key": "-",
@@ -47,8 +46,6 @@ function main() {
     if (typeof process.env.SETTINGS != 'undefined') {
         settings =  JSON.parse(process.env.SETTINGS);
     }
-
-    adjustSettingsBasedOnTimezone(settings);
 
     winston.setLevels(winston.config.syslog.levels);
     if (settings.log_to_file) {
@@ -81,29 +78,6 @@ function main() {
     app.use('/api', router);
 
     app.listen(port);
-}
-
-function adjustSettingsBasedOnTimezone(settings) {
-    if (typeof settings.timezone_adjust_hours === 'undefined') {
-        settings.timezone_adjust_hours = 0;
-    }
-    if (typeof settings.timezone_adjust_minutes === 'undefined') {
-        settings.timezone_adjust_minutes = 0;
-    }
-    if (typeof settings.auto_on_exclude_time_range !== 'undefined') {
-        settings.auto_on_exclude_time_range[0].Hour += settings.timezone_adjust_hours;
-        settings.auto_on_exclude_time_range[1].Hour += settings.timezone_adjust_hours;
-        settings.auto_on_exclude_time_range[0].Minute += settings.timezone_adjust_minutes;
-        settings.auto_on_exclude_time_range[1].Minute += settings.timezone_adjust_minutes;
-    }
-    if (typeof settings.alarm_time_hour !== 'undefined') {
-        winston.info("Adjusting alarm hour")
-        settings.alarm_time_hour += settings.timezone_adjust_hours;
-        winston.info("Now " + settings.alarm_time_hour);
-    }
-    if (typeof settings.alarm_time_minute !== 'undefined') {
-        settings.alarm_time_minute += settings.timezone_adjust_minutes;
-    }
 }
 
 main();
